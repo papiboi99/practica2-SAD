@@ -29,7 +29,7 @@ public class Server {
                 String myNick = client.readString();
                 int i = isNickUsed(myNick);
                 if (i != 0){
-                    myNick = myNick+isNickUsed(myNick);
+                    myNick = myNick+i;
                 }
                 client.setNick(myNick);
                 System.out.println(dateFormat.format(new Date())+" [SERVER] " + myNick + " has just connected!");
@@ -60,13 +60,19 @@ public class Server {
     }
 
     public static int isNickUsed(String myNick){
-        int i = 0;
-        for(Map.Entry<String,MySocket> entry : clients.entrySet()) {
-            if (entry.getKey().equals(myNick)){
-                i++;
+        w.lock();
+        try{
+            int i = 0;
+            for(Map.Entry<String,MySocket> entry : clients.entrySet()) {
+                if (entry.getKey().equals(myNick)){
+                    i++;
+                }
             }
+            return i;
         }
-        return i;
+        finally {
+            w.unlock();
+        }
     }
 
     public static void removeClient(String nick){
