@@ -4,7 +4,7 @@ import java.net.Socket;
 
 public class MyServerSocket {
 
-    ServerSocket myServerSocket;
+    private ServerSocket myServerSocket;
 
     //hay que especificar el puerto al que hay que concectarse
     public MyServerSocket(int port) {

@@ -2,17 +2,22 @@ import java.io.*;
 import java.net.Socket;
 
 public class MySocket {
-    Socket mySocket;
-    BufferedReader in;
-    PrintWriter out;
+    private Socket mySocket;
+    private BufferedReader in;
+    private PrintWriter out;
+    private String nick;
 
     //construimos un socket para conectar con un servidor indicado
-    public MySocket(String host, int port) {
+    public MySocket(String nick, String host, int port) {
         try {
+            this.nick = nick;
             mySocket = new Socket(host, port);
             iniStreams();
-        } catch (IOException e) {
+            writeString(nick);
 
+        } catch (IOException e) {
+            System.out.println("[SOCKET ERROR] Couldn't create the socket");
+            e.printStackTrace();
         }
     }
 
@@ -29,7 +34,7 @@ public class MySocket {
             ));
             out = new PrintWriter(mySocket.getOutputStream(), true);
         } catch (IOException e) {
-
+            System.out.println("[SOCKET ERROR] Couldn't initialize the streams");
         }
     }
 
@@ -69,7 +74,11 @@ public class MySocket {
             out.close();
             mySocket.close();
         } catch (IOException e) {
-
+            System.out.println("[SOCKET ERROR] Couldn't close the socket");
         }
     }
+
+    public String getNick(){ return nick;}
+
+    public void setNick(String nick){ this.nick = nick;}
 }
