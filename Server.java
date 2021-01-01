@@ -24,11 +24,16 @@ public class Server {
 
         while (true){
             MySocket client = listener.accept();
-            client.setNick(client.readString());
-            System.out.println(dateFormat.format(new Date())+" [SERVER] " + client.getNick() + " has just connected!");
 
             Thread clientHandlerThread = new Thread(() -> {
-                String myNick = client.getNick();
+                String myNick = client.readString();
+                int i = isNickUsed(myNick);
+                if (i != 0){
+                    myNick = myNick+isNickUsed(myNick);
+                }
+                client.setNick(myNick);
+                System.out.println(dateFormat.format(new Date())+" [SERVER] " + myNick + " has just connected!");
+
                 putClient(myNick, client);
 
                 String line;
@@ -54,6 +59,16 @@ public class Server {
         finally { w.unlock(); }
     }
 
+    public static int isNickUsed(String myNick){
+        int i = 0;
+        for(Map.Entry<String,MySocket> entry : clients.entrySet()) {
+            if (entry.getKey().equals(myNick)){
+                i++;
+            }
+        }
+        return i;
+    }
+
     public static void removeClient(String nick){
         w.lock();
         try { clients.remove(nick); }
@@ -64,8 +79,7 @@ public class Server {
         r.lock();
         try {
             for(Map.Entry<String,MySocket> entry : clients.entrySet()) {
-                String nick = entry.getKey();
-                if (nick != myNick){
+                if (entry.getKey() != myNick){
                     DateFormat dateFormat = new SimpleDateFormat("HH:mm");
                     entry.getValue().writeString(dateFormat.format(new Date())+" >> ["+myNick+"]: "+line);
                 }
